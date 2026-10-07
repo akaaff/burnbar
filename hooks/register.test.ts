@@ -1,6 +1,7 @@
 import { expect, mock, test } from 'claude-code/testing'
 
-import { barColor, gradient, isLightTheme, percentUsed, segments, untilReset } from './register'
+import type { On } from 'claude-code'
+import { barColor, gradient, paletteFor, percentUsed, segments, untilReset } from './register'
 
 const NOW = Date.parse('2026-10-07T12:00:00Z')
 
@@ -87,11 +88,63 @@ for (const surface of ['terminal', 'desktop'] as const) {
   })
 }
 
-test('light theme gets a darker palette', () => {
-  expect(isLightTheme('light')).toBe(true)
-  expect(isLightTheme('light-daltonized')).toBe(true)
-  expect(isLightTheme('dark')).toBe(false)
-  expect(gradient(0.5, true)).not.toBe(gradient(0.5))
-  // yellow on a light theme is darker than on dark
-  expect(parseInt(gradient(0.5, true).slice(1, 3), 16)).toBeLessThan(parseInt(gradient(0.5).slice(1, 3), 16))
+test('theme ids map to palettes', () => {
+  expect(paletteFor('dark')).toBe('dark')
+  expect(paletteFor('dark-daltonized')).toBe('dark')
+  expect(paletteFor('dark-ansi')).toBe('dark')
+  expect(paletteFor('light')).toBe('light')
+  expect(paletteFor('light-daltonized')).toBe('light')
+  expect(paletteFor('light-ansi')).toBe('light')
+  expect(paletteFor('auto')).toBe('auto')
+  expect(paletteFor(undefined)).toBe('dark')
+})
+
+test('palettes darken from dark to auto to light', () => {
+  const red = (hex: string) => parseInt(hex.slice(1, 3), 16)
+  const yellow = { dark: gradient(0.5, 'dark'), auto: gradient(0.5, 'auto'), light: gradient(0.5, 'light') }
+  expect(red(yellow.auto)).toBeLessThan(red(yellow.dark))
+  expect(red(yellow.light)).toBeLessThan(red(yellow.auto))
+})
+
+// what the engine answers beneath the plugin when a session starts, with the given theme
+function startWorld(on: On, theme: string) {
+  mock.clock(on, { now: NOW })
+  on('command.register', ($, e) => ({ value: { command: e.name } }) as never)
+  on('session.usage', () => ({
+    value: { startedAt: NOW, context: { window: 200000 }, rateLimits: [{ kind: 'five_hour', percentUsed: 100 }] },
+  }) as never)
+  on('config.list', () => ({
+    value: [{ key: 'theme', label: 'Theme', kind: 'choice', value: theme, provider: { plugin: 'engine', tier: 'core' }, isLocked: false }],
+  }) as never)
+  on('session.start', ($, e) => ({ cwd: e.cwd }))
+}
+
+// the colour of the first (leftmost) filled segment in the strip
+async function firstSegmentColor($: Parameters<Parameters<typeof test>[1] & Function>[0]): Promise<unknown> {
+  const ui = await $.ui.mount({ plugin: 'burnbar', surface: 'terminal', component: 'AbovePrompt', props: { hasSurvey: false } as never } as never)
+  return (await ui.find({ type: 'Text', text: /^▰$/ }))?.props.color
+}
+
+for (const [theme, tone] of [['dark', 'dark'], ['light', 'light'], ['auto', 'auto'], ['light-daltonized', 'light']] as const) {
+  test(`a session started under the ${theme} theme draws the ${tone} palette`, async ($, on) => {
+    startWorld(on, theme)
+    await $.session.start({ cwd: '.', surface: 'terminal', isInteractive: true })
+    expect(await firstSegmentColor($ as never)).toBe(gradient(0.95, tone))
+  })
+}
+
+test('switching the theme mid-session switches the palette', async ($, on) => {
+  startWorld(on, 'dark')
+  on('config.set', ($, e) => ({ value: e.value }))
+  await $.session.start({ cwd: '.', surface: 'terminal', isInteractive: true })
+  await $.config.set({ key: 'theme', value: 'light', previous: 'dark', provider: { plugin: 'engine', tier: 'core' }, origin: { kind: 'composer' } } as never)
+  expect(await firstSegmentColor($ as never)).toBe(gradient(0.95, 'light'))
+})
+
+test('a refused theme change keeps the palette', async ($, on) => {
+  startWorld(on, 'dark')
+  on('config.set', () => ({ deny: 'locked by policy' }))
+  await $.session.start({ cwd: '.', surface: 'terminal', isInteractive: true })
+  await $.config.set({ key: 'theme', value: 'light', previous: 'dark', provider: { plugin: 'engine', tier: 'core' }, origin: { kind: 'composer' } } as never)
+  expect(await firstSegmentColor($ as never)).toBe(gradient(0.95, 'dark'))
 })

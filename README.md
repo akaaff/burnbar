@@ -9,7 +9,7 @@ A Claude Code plugin that shows how much of your Claude usage limits you've used
 - One bar per limit window (5-hour and weekly) that fills as you use it, segments fading green → red
 - Percentage used, coloured green → red as it climbs; dimmed countdown to each reset
 - `/burnbar` opens a larger side panel with the same bars
-- Darker palette when Claude Code's theme is a light one
+- Colours tuned to Claude Code's `theme` setting: brighter for dark themes, darker for light ones, and an in-between palette for `auto`
 
 Readings come from Claude Code itself after each reply, so the strip appears once Claude has answered at least once. Only Pro and Max subscriptions report usage limits; on API billing it stays hidden.
 
@@ -73,7 +73,7 @@ Backslashes must be doubled inside JSON.
 
 ## What it accesses
 
-- **Reads:** the usage-limit figures Claude Code already reports after each reply (percent used and reset time per window), and Claude Code's `theme` setting to pick a palette.
+- **Reads:** the usage-limit figures Claude Code already reports after each reply (percent used and reset time per window), and Claude Code's `theme` setting to pick a palette (`auto` gets an in-between palette, since plugins can't see which background the terminal has).
 - **Stores:** only those figures, in Claude Code's per-session plugin state; nothing is written to disk.
 - **Sends:** nothing. The plugin makes no network requests, runs no processes and reads no files.
 

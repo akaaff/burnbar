@@ -1,7 +1,7 @@
 import { atom, read, update } from 'claude-code'
 import type { Register } from 'claude-code'
 
-import type { Limit } from '../types'
+import type { Limit, Palette } from '../types'
 
 const PANE = 'burnbar'
 const TITLE = 'Usage'
@@ -9,7 +9,7 @@ const TITLE = 'Usage'
 const SIZE = { rows: 8, columns: 30 } as const
 const limits = atom({ plugin: 'burnbar', key: 'limits' } as const, [])
 const now = atom({ plugin: 'burnbar', key: 'now' } as const, 0)
-const isLight = atom({ plugin: 'burnbar', key: 'isLight' } as const, false)
+const palette = atom({ plugin: 'burnbar', key: 'palette' } as const, 'dark')
 
 const LABELS: Record<string, string> = { five_hour: '5-hour', seven_day: 'Weekly', spend_limit: 'Spend' }
 
@@ -22,12 +22,18 @@ export function percentUsed(limit: Limit): number {
   return Math.max(0, Math.round(limit.percentUsed))
 }
 
-// 0 = red, 0.5 = yellow, 1 = green: the hue walks 0° → 120° at fixed saturation and lightness,
-// darker and more saturated on a light theme so yellow stays readable on white
-export function gradient(fraction: number, light = false): string {
+// saturation and lightness per palette: brighter on dark, darker on light so yellow stays readable
+// on white, and in between for 'auto', where the plugin can't tell which background it's on
+const TONES: Record<Palette, { s: number; l: number }> = {
+  dark: { s: 0.75, l: 0.5 },
+  light: { s: 0.85, l: 0.36 },
+  auto: { s: 0.8, l: 0.43 },
+}
+
+// 0 = red, 0.5 = yellow, 1 = green: the hue walks 0° → 120° at the palette's saturation and lightness
+export function gradient(fraction: number, tone: Palette = 'dark'): string {
   const hue = 120 * Math.max(0, Math.min(1, fraction))
-  const s = light ? 0.85 : 0.75
-  const l = light ? 0.36 : 0.5
+  const { s, l } = TONES[tone]
   const k = (n: number) => (n + hue / 30) % 12
   const a = s * Math.min(l, 1 - l)
   const channel = (n: number) => {
@@ -38,19 +44,21 @@ export function gradient(fraction: number, light = false): string {
 }
 
 // green while little is used, red as the window runs out
-export function barColor(used: number, light = false): string {
-  return gradient(1 - Math.min(100, used) / 100, light)
+export function barColor(used: number, tone: Palette = 'dark'): string {
+  return gradient(1 - Math.min(100, used) / 100, tone)
 }
 
-export function isLightTheme(theme: unknown): boolean {
-  return typeof theme === 'string' && theme.includes('light')
+// Claude Code's theme ids: auto, dark, light, light-daltonized, dark-daltonized, light-ansi, dark-ansi
+export function paletteFor(theme: unknown): Palette {
+  if (theme === 'auto') return 'auto'
+  return typeof theme === 'string' && theme.startsWith('light') ? 'light' : 'dark'
 }
 
 // one entry per segment, filling with usage: green (left) to red (right), empty ones uncoloured
-export function segments(used: number, width: number, light = false): { char: string; color?: string }[] {
+export function segments(used: number, width: number, tone: Palette = 'dark'): { char: string; color?: string }[] {
   const filled = Math.round((Math.min(100, used) / 100) * width)
   return Array.from({ length: width }, (_, i) =>
-    i < filled ? { char: '▰', color: gradient(1 - (i + 0.5) / width, light) } : { char: '▱' },
+    i < filled ? { char: '▰', color: gradient(1 - (i + 0.5) / width, tone) } : { char: '▱' },
   )
 }
 
@@ -85,9 +93,9 @@ export const register: Register = on => {
     }
     try {
       const theme = (await $.config.list()).find(row => row.key === 'theme')
-      await update($, isLight, () => isLightTheme(theme?.value))
+      await update($, palette, () => paletteFor(theme?.value))
     } catch {
-      // no theme row on this surface; keep the dark palette
+      // no theme row on this surface; keep the palette it had
     }
     // tick once a minute so the reset countdowns stay current
     $.clock.every(60_000, () => void $.clock.now().then(t => update($, now, () => t)))
@@ -101,7 +109,8 @@ export const register: Register = on => {
 
   on('config.set', { key: 'theme' }, async ($, e, next) => {
     const result = await next(e)
-    await update($, isLight, () => isLightTheme(e.value))
+    // follow what was written: a refused change keeps the old theme, a clamped one the clamped value
+    if (result.deny === undefined) await update($, palette, () => paletteFor(result.value))
     return result
   }).catch(($, e, next) => next(e)) // never stand in the way of a theme change
 
@@ -116,7 +125,7 @@ export const register: Register = on => {
     const { Box, Text } = $.ui.resolve(e)
     const list = await read($, limits)
     const at = await read($, now)
-    const light = await read($, isLight)
+    const tone = await read($, palette)
     const width = Math.max(10, Math.min(40, (e.props.bodyColumns ?? 32) - 2))
 
     if (list.length === 0) {
@@ -135,10 +144,10 @@ export const register: Register = on => {
           return (
             <Box key={limit.kind} flexDirection="column" marginBottom={1}>
               <Text bold>
-                {label(limit.kind)} <Text color={barColor(used, light)}>{used}% used</Text>
+                {label(limit.kind)} <Text color={barColor(used, tone)}>{used}% used</Text>
               </Text>
               <Text>
-                {segments(used, width, light).map((seg, i) =>
+                {segments(used, width, tone).map((seg, i) =>
                   seg.color ? <Text key={`s${i}`} color={seg.color}>{seg.char}</Text> : <Text key={`s${i}`} dimColor>{seg.char}</Text>,
                 )}
               </Text>
@@ -156,7 +165,7 @@ export const register: Register = on => {
 
     const { Box, Text } = $.ui.resolve(e)
     const at = await read($, now)
-    const light = await read($, isLight)
+    const tone = await read($, palette)
 
     return (
       <Box>
@@ -167,10 +176,10 @@ export const register: Register = on => {
             <Text key={limit.kind}>
               {i > 0 && <Text dimColor>  ·  </Text>}
               <Text dimColor>{SHORT_LABELS[limit.kind] ?? limit.kind} </Text>
-              {segments(used, 10, light).map((seg, s) =>
+              {segments(used, 10, tone).map((seg, s) =>
                 seg.color ? <Text key={`s${s}`} color={seg.color}>{seg.char}</Text> : <Text key={`s${s}`} dimColor>{seg.char}</Text>,
               )}
-              <Text color={barColor(used, light)}> {used}%</Text>
+              <Text color={barColor(used, tone)}> {used}%</Text>
               {reset && <Text dimColor>  ↻ {reset}</Text>}
             </Text>
           )

@@ -101,7 +101,9 @@ Backslashes must be doubled inside JSON.
 
 ## Support
 
-Questions, bugs and security concerns: [open an issue](https://github.com/akaaff/burnbar/issues) on GitHub.
+Questions and bugs: [open an issue](https://github.com/akaaff/burnbar/issues) on GitHub.
+
+Security issues: please report them privately, as described in [SECURITY.md](SECURITY.md).
 
 ## Customising
 

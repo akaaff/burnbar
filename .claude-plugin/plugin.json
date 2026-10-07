@@ -1,6 +1,6 @@
 {
   "name": "burnbar",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Side panel with progress bars for your remaining 5-hour and weekly Claude usage limits",
   "types": "./types/index.d.ts",
   "author": {

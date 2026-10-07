@@ -15,17 +15,44 @@ Readings come from Claude Code itself after each reply, so the strip appears onc
 
 ## Install
 
-Clone it anywhere, then point Claude Code at the folder in `~/.claude/settings.json`:
+Clone the repo, point Claude Code at the folder in `~/.claude/settings.json`, then restart Claude Code.
+
+### macOS / Linux
+
+```bash
+git clone https://github.com/akaaff/claude-usage-meter ~/claude-usage-meter
+```
 
 ```json
 {
   "env": {
-    "CLAUDE_CODE_PLUGIN_DIRS": "C:\path\to\claude-usage-meter"
+    "CLAUDE_CODE_PLUGIN_DIRS": "~/claude-usage-meter"
   }
 }
 ```
 
-Restart Claude Code. For a single terminal session you can use `claude --plugin-dir <path>` instead.
+### Windows
+
+```powershell
+git clone https://github.com/akaaff/claude-usage-meter $HOME\claude-usage-meter
+```
+
+```json
+{
+  "env": {
+    "CLAUDE_CODE_PLUGIN_DIRS": "C:\\Users\\<you>\\claude-usage-meter"
+  }
+}
+```
+
+Backslashes must be doubled inside JSON.
+
+### Notes
+
+- Already have an `env` block? Add the `CLAUDE_CODE_PLUGIN_DIRS` line to it rather than adding a second block.
+- Several plugin folders go in the same variable, separated by `:` on macOS/Linux and `;` on Windows.
+- For a single terminal session instead: `claude --plugin-dir <path>`.
+- If the bars show as boxes, your font lacks `▰`/`▱`; swap them in `segments()` for e.g. `#`/`-`.
 
 ## Customising
 

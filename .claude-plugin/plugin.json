@@ -6,5 +6,6 @@
   "author": {
     "name": "akaaff"
   },
-  "repository": "https://github.com/akaaff/claude-usage-meter"
+  "repository": "https://github.com/akaaff/claude-usage-meter",
+  "license": "MIT"
 }

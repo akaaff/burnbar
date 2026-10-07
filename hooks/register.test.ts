@@ -1,24 +1,29 @@
 import { expect, mock, test } from 'claude-code/testing'
 
-import { bar, barColor, gradient, isLightTheme, percentLeft, segments, untilReset } from './register'
+import { barColor, gradient, isLightTheme, percentUsed, segments, untilReset } from './register'
 
 const NOW = Date.parse('2026-10-07T12:00:00Z')
 
-test('bar fills by percent left', () => {
-  expect(bar(50, 10)).toBe('▰▰▰▰▰▱▱▱▱▱')
-  expect(bar(0, 4)).toBe('▱▱▱▱')
+test('bar fills by percent used', () => {
+  const chars = (used: number, width: number) => segments(used, width).map(s => s.char).join('')
+  expect(chars(50, 10)).toBe('▰▰▰▰▰▱▱▱▱▱')
+  expect(chars(0, 4)).toBe('▱▱▱▱')
+  expect(chars(120, 4)).toBe('▰▰▰▰')
 })
 
-test('percent left and color thresholds', () => {
-  expect(percentLeft({ kind: 'five_hour', percentUsed: 23.5 })).toBe(77)
-  expect(percentLeft({ kind: 'spend_limit', percentUsed: 120 })).toBe(0)
+test('percent used rounds and keeps an overrun', () => {
+  expect(percentUsed({ kind: 'five_hour', percentUsed: 23.5 })).toBe(24)
+  expect(percentUsed({ kind: 'spend_limit', percentUsed: 120 })).toBe(120)
 })
 
 test('gradient runs red to yellow to green', () => {
   expect(gradient(0)).toBe('#df2020')
   expect(gradient(0.5)).toBe('#dfdf20')
   expect(gradient(1)).toBe('#20df20')
-  expect(barColor(100)).toBe(gradient(1))
+  // the number turns red as usage climbs
+  expect(barColor(0)).toBe(gradient(1))
+  expect(barColor(100)).toBe(gradient(0))
+  expect(barColor(150)).toBe(gradient(0))
 })
 
 test('segments colour filled ones green to red, leave empty ones plain', () => {
@@ -54,8 +59,8 @@ for (const surface of ['terminal', 'desktop'] as const) {
       props: {} as never,
     } as never)
     expect(await ui.find({ text: '5-hour' })).toBeTruthy()
-    expect(await ui.find({ text: '60% left' })).toBeTruthy()
-    expect(await ui.find({ text: '5% left' })).toBeTruthy()
+    expect(await ui.find({ text: '40% used' })).toBeTruthy()
+    expect(await ui.find({ text: '95% used' })).toBeTruthy()
   })
 }
 
@@ -77,8 +82,8 @@ for (const surface of ['terminal', 'desktop'] as const) {
       component: 'AbovePrompt',
       props: { hasSurvey: false } as never,
     } as never)
-    expect(await ui.find({ text: '77%' })).toBeTruthy()
-    expect(await ui.find({ text: '92%' })).toBeTruthy()
+    expect(await ui.find({ text: '23%' })).toBeTruthy()
+    expect(await ui.find({ text: '8%' })).toBeTruthy()
   })
 }
 

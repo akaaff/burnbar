@@ -1,13 +1,13 @@
 # claude-usage-meter
 
-A Claude Code plugin that shows how much of your Claude usage limit is left, right above the prompt:
+A Claude Code plugin that shows how much of your Claude usage limits you've used, right above the prompt:
 
 ```
-5h ▰▰▰▰▰▰▰▰▱▱ 77%  ↻ 2h 14m  ·  Week ▰▰▰▰▰▰▰▰▰▱ 92%  ↻ 3d 4h
+5h ▰▰▱▱▱▱▱▱▱▱ 23%  ↻ 2h 14m  ·  Week ▰▱▱▱▱▱▱▱▱▱ 8%  ↻ 3d 4h
 ```
 
-- One bar per limit window (5-hour and weekly), segments fading green → red
-- Percentage coloured by how much is left; dimmed countdown to each reset
+- One bar per limit window (5-hour and weekly) that fills as you use it, segments fading green → red
+- Percentage used, coloured green → red as it climbs; dimmed countdown to each reset
 - `/usage-meter` opens a larger side panel with the same bars
 - Darker palette when Claude Code's theme is a light one
 

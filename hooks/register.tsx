@@ -17,13 +17,9 @@ export function label(kind: string): string {
   return LABELS[kind] ?? kind
 }
 
-export function percentLeft(limit: Limit): number {
-  return Math.max(0, Math.min(100, Math.round(100 - limit.percentUsed)))
-}
-
-export function bar(left: number, width: number): string {
-  const filled = Math.round((left / 100) * width)
-  return '▰'.repeat(filled) + '▱'.repeat(width - filled)
+// can pass 100 on an exceeded spend limit; the bar caps at full, the number does not
+export function percentUsed(limit: Limit): number {
+  return Math.max(0, Math.round(limit.percentUsed))
 }
 
 // 0 = red, 0.5 = yellow, 1 = green: the hue walks 0° → 120° at fixed saturation and lightness,
@@ -41,17 +37,18 @@ export function gradient(fraction: number, light = false): string {
   return `#${channel(0)}${channel(8)}${channel(4)}`
 }
 
-export function barColor(left: number, light = false): string {
-  return gradient(left / 100, light)
+// green while little is used, red as the window runs out
+export function barColor(used: number, light = false): string {
+  return gradient(1 - Math.min(100, used) / 100, light)
 }
 
 export function isLightTheme(theme: unknown): boolean {
   return typeof theme === 'string' && theme.includes('light')
 }
 
-// one entry per segment: filled ones run green (left) to red (right), empty ones uncoloured
-export function segments(left: number, width: number, light = false): { char: string; color?: string }[] {
-  const filled = Math.round((left / 100) * width)
+// one entry per segment, filling with usage: green (left) to red (right), empty ones uncoloured
+export function segments(used: number, width: number, light = false): { char: string; color?: string }[] {
+  const filled = Math.round((Math.min(100, used) / 100) * width)
   return Array.from({ length: width }, (_, i) =>
     i < filled ? { char: '▰', color: gradient(1 - (i + 0.5) / width, light) } : { char: '▱' },
   )
@@ -134,14 +131,14 @@ export const register: Register = on => {
     return (
       <Box flexDirection="column">
         {list.map(limit => {
-          const left = percentLeft(limit)
+          const used = percentUsed(limit)
           return (
             <Box key={limit.kind} flexDirection="column" marginBottom={1}>
               <Text bold>
-                {label(limit.kind)} <Text color={barColor(left, light)}>{left}% left</Text>
+                {label(limit.kind)} <Text color={barColor(used, light)}>{used}% used</Text>
               </Text>
               <Text>
-                {segments(left, width, light).map((seg, i) =>
+                {segments(used, width, light).map((seg, i) =>
                   seg.color ? <Text key={`s${i}`} color={seg.color}>{seg.char}</Text> : <Text key={`s${i}`} dimColor>{seg.char}</Text>,
                 )}
               </Text>
@@ -164,16 +161,16 @@ export const register: Register = on => {
     return (
       <Box>
         {list.map((limit, i) => {
-          const left = percentLeft(limit)
+          const used = percentUsed(limit)
           const reset = shortReset(limit.resetsAt, at)
           return (
             <Text key={limit.kind}>
               {i > 0 && <Text dimColor>  ·  </Text>}
               <Text dimColor>{SHORT_LABELS[limit.kind] ?? limit.kind} </Text>
-              {segments(left, 10, light).map((seg, s) =>
+              {segments(used, 10, light).map((seg, s) =>
                 seg.color ? <Text key={`s${s}`} color={seg.color}>{seg.char}</Text> : <Text key={`s${s}`} dimColor>{seg.char}</Text>,
               )}
-              <Text color={barColor(left, light)}> {left}%</Text>
+              <Text color={barColor(used, light)}> {used}%</Text>
               {reset && <Text dimColor>  ↻ {reset}</Text>}
             </Text>
           )

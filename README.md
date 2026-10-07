@@ -1,4 +1,4 @@
-# claude-usage-meter
+# burnbar
 
 A Claude Code plugin that shows how much of your Claude usage limits you've used, right above the prompt:
 
@@ -8,7 +8,7 @@ A Claude Code plugin that shows how much of your Claude usage limits you've used
 
 - One bar per limit window (5-hour and weekly) that fills as you use it, segments fading green → red
 - Percentage used, coloured green → red as it climbs; dimmed countdown to each reset
-- `/usage-meter` opens a larger side panel with the same bars
+- `/burnbar` opens a larger side panel with the same bars
 - Darker palette when Claude Code's theme is a light one
 
 Readings come from Claude Code itself after each reply, so the strip appears once Claude has answered at least once. Only Pro and Max subscriptions report usage limits; on API billing it stays hidden.
@@ -18,16 +18,16 @@ Readings come from Claude Code itself after each reply, so the strip appears onc
 One command, the same on macOS, Linux and Windows:
 
 ```bash
-claude plugin install usage-meter --marketplace akaaff/claude-usage-meter
+claude plugin install burnbar --marketplace akaaff/burnbar
 ```
 
-Restart Claude Code (or run `/reload-plugins`). Update later with `claude plugin update usage-meter@claude-usage-meter`; remove with `claude plugin uninstall usage-meter@claude-usage-meter`.
+Restart Claude Code (or run `/reload-plugins`). Update later with `claude plugin update burnbar@burnbar`; remove with `claude plugin uninstall burnbar@burnbar`.
 
 Or from inside Claude Code:
 
 ```
-/plugin marketplace add akaaff/claude-usage-meter
-/plugin install usage-meter@claude-usage-meter
+/plugin marketplace add akaaff/burnbar
+/plugin install burnbar@burnbar
 ```
 
 ## Manual install (to hack on it)
@@ -37,13 +37,13 @@ Clone the repo, point Claude Code at the folder in `~/.claude/settings.json`, th
 ### macOS / Linux
 
 ```bash
-git clone https://github.com/akaaff/claude-usage-meter ~/claude-usage-meter
+git clone https://github.com/akaaff/burnbar ~/burnbar
 ```
 
 ```json
 {
   "env": {
-    "CLAUDE_CODE_PLUGIN_DIRS": "~/claude-usage-meter"
+    "CLAUDE_CODE_PLUGIN_DIRS": "~/burnbar"
   }
 }
 ```
@@ -51,13 +51,13 @@ git clone https://github.com/akaaff/claude-usage-meter ~/claude-usage-meter
 ### Windows
 
 ```powershell
-git clone https://github.com/akaaff/claude-usage-meter $HOME\claude-usage-meter
+git clone https://github.com/akaaff/burnbar $HOME\burnbar
 ```
 
 ```json
 {
   "env": {
-    "CLAUDE_CODE_PLUGIN_DIRS": "C:\\Users\\<you>\\claude-usage-meter"
+    "CLAUDE_CODE_PLUGIN_DIRS": "C:\\Users\\<you>\\burnbar"
   }
 }
 ```

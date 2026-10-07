@@ -1,18 +1,18 @@
 {
-  "name": "claude-usage-meter",
+  "name": "burnbar",
   "owner": {
     "name": "akaaff"
   },
   "metadata": {
     "description": "Claude Code plugin showing how much of your 5-hour and weekly usage limits you've used",
-    "version": "0.3.0"
+    "version": "0.4.0"
   },
   "plugins": [
     {
-      "name": "usage-meter",
+      "name": "burnbar",
       "source": "./",
       "description": "Bars above the prompt showing percent used of your 5-hour and weekly Claude usage limits, with reset countdowns",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "author": {
         "name": "akaaff"
       },

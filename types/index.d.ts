@@ -2,6 +2,6 @@ export type Limit = { kind: string; percentUsed: number; resetsAt?: string }
 
 declare module 'claude-code' {
   interface PluginState {
-    'usage-meter': { limits: Limit[]; now: number; isLight: boolean }
+    'burnbar': { limits: Limit[]; now: number; isLight: boolean }
   }
 }

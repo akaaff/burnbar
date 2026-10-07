@@ -3,13 +3,13 @@ import type { Register } from 'claude-code'
 
 import type { Limit } from '../types'
 
-const PANE = 'usage-meter'
+const PANE = 'burnbar'
 const TITLE = 'Usage'
 // a slim dock beside a fullscreen transcript, a short block when inline above the prompt
 const SIZE = { rows: 8, columns: 30 } as const
-const limits = atom({ plugin: 'usage-meter', key: 'limits' } as const, [])
-const now = atom({ plugin: 'usage-meter', key: 'now' } as const, 0)
-const isLight = atom({ plugin: 'usage-meter', key: 'isLight' } as const, false)
+const limits = atom({ plugin: 'burnbar', key: 'limits' } as const, [])
+const now = atom({ plugin: 'burnbar', key: 'now' } as const, 0)
+const isLight = atom({ plugin: 'burnbar', key: 'isLight' } as const, false)
 
 const LABELS: Record<string, string> = { five_hour: '5-hour', seven_day: 'Weekly', spend_limit: 'Spend' }
 
@@ -74,7 +74,7 @@ const SHORT_LABELS: Record<string, string> = { five_hour: '5h', seven_day: 'Week
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
-    await $.command.register({ name: 'usage-meter', description: 'Show remaining usage limits in a side panel' })
+    await $.command.register({ name: 'burnbar', description: 'Show your usage limits in a side panel' })
     const t = await $.clock.now()
     await update($, now, () => t)
     try {
@@ -94,7 +94,7 @@ export const register: Register = on => {
     return next(e)
   })
 
-  on('command.run', { command: 'usage-meter' }, async $ => {
+  on('command.run', { command: 'burnbar' }, async $ => {
     await $.ui.open({ id: PANE, title: TITLE, ...SIZE })
     return { text: 'Usage panel opened.' }
   })

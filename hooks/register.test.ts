@@ -52,10 +52,10 @@ for (const surface of ['terminal', 'desktop'] as const) {
       changed: ['rateLimits'],
     })
     const ui = await $.ui.mount({
-      plugin: 'usage-meter',
+      plugin: 'burnbar',
       surface,
       component: 'Pane',
-      requestId: 'usage-meter',
+      requestId: 'burnbar',
       props: {} as never,
     } as never)
     expect(await ui.find({ text: '5-hour' })).toBeTruthy()
@@ -77,7 +77,7 @@ for (const surface of ['terminal', 'desktop'] as const) {
       changed: ['rateLimits'],
     })
     const ui = await $.ui.mount({
-      plugin: 'usage-meter',
+      plugin: 'burnbar',
       surface,
       component: 'AbovePrompt',
       props: { hasSurvey: false } as never,

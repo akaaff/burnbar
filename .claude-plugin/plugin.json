@@ -1,11 +1,11 @@
 {
-  "name": "usage-meter",
-  "version": "0.3.0",
+  "name": "burnbar",
+  "version": "0.4.0",
   "description": "Side panel with progress bars for your remaining 5-hour and weekly Claude usage limits",
   "types": "./types/index.d.ts",
   "author": {
     "name": "akaaff"
   },
-  "repository": "https://github.com/akaaff/claude-usage-meter",
+  "repository": "https://github.com/akaaff/burnbar",
   "license": "MIT"
 }

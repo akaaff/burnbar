@@ -15,7 +15,24 @@ Readings come from Claude Code itself after each reply, so the strip appears onc
 
 ## Install
 
-Clone the repo, point Claude Code at the folder in `~/.claude/settings.json`, then restart Claude Code.
+One command, the same on macOS, Linux and Windows:
+
+```bash
+claude plugin install usage-meter --marketplace akaaff/claude-usage-meter
+```
+
+Restart Claude Code (or run `/reload-plugins`). Update later with `claude plugin update usage-meter@claude-usage-meter`; remove with `claude plugin uninstall usage-meter@claude-usage-meter`.
+
+Or from inside Claude Code:
+
+```
+/plugin marketplace add akaaff/claude-usage-meter
+/plugin install usage-meter@claude-usage-meter
+```
+
+## Manual install (to hack on it)
+
+Clone the repo, point Claude Code at the folder in `~/.claude/settings.json`, then restart Claude Code. Edits to the folder reload live.
 
 ### macOS / Linux
 
@@ -47,7 +64,7 @@ git clone https://github.com/akaaff/claude-usage-meter $HOME\claude-usage-meter
 
 Backslashes must be doubled inside JSON.
 
-### Notes
+### Notes (manual install)
 
 - Already have an `env` block? Add the `CLAUDE_CODE_PLUGIN_DIRS` line to it rather than adding a second block.
 - Several plugin folders go in the same variable, separated by `:` on macOS/Linux and `;` on Windows.

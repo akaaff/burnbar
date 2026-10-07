@@ -1,11 +1,14 @@
 {
   "name": "burnbar",
-  "version": "0.4.4",
-  "description": "Side panel with progress bars for your remaining 5-hour and weekly Claude usage limits",
+  "version": "0.4.5",
+  "description": "Bars above the prompt showing how much of your 5-hour and weekly Claude usage limits you've used, with reset countdowns",
   "types": "./types/index.d.ts",
   "author": {
     "name": "akaaff"
   },
   "repository": "https://github.com/akaaff/burnbar",
-  "license": "MIT"
+  "license": "MIT",
+  "icon": "./.claude-plugin/icon.png",
+  "documentationUrl": "https://github.com/akaaff/burnbar#readme",
+  "supportUrl": "https://github.com/akaaff/burnbar/issues"
 }

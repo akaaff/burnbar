@@ -168,7 +168,7 @@ export const register: Register = on => {
     const list = await read($, limits)
     if (e.props.hasSurvey || list.length === 0) return next(e)
 
-    const { Box, Text } = $.ui.resolve(e)
+    const { Box, Button, Text } = $.ui.resolve(e)
     const at = await read($, now)
     const tone = await read($, palette)
 
@@ -189,6 +189,9 @@ export const register: Register = on => {
             </Text>
           )
         })}
+        <Text dimColor>  ·  </Text>
+        {/* the coloured bars can't take a click (only a Button's plain label can), so the panel gets a quiet button of its own */}
+        <Button key="details" plain dimColor label="details" onPress={() => void $.ui.open({ id: PANE, title: TITLE, ...SIZE })} />
       </Box>
     )
   })

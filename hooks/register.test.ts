@@ -151,3 +151,24 @@ test('a theme change shows after the next reply', async ($, on) => {
   await $.session.measure({ context: { window: 200000 } as never, rateLimits: [{ kind: 'five_hour', percentUsed: 100 }], changed: ['rateLimits'] })
   expect(await firstSegmentColor($ as never)).toBe(gradient(0.95, 'light'))
 })
+
+for (const surface of ['terminal', 'desktop'] as const) {
+  test(`the strip's details button opens the panel (${surface})`, async ($, on) => {
+    mock.clock(on, { now: NOW })
+    on('session.measure', ($, e) => ({ changed: e.changed }))
+    const opened: string[] = []
+    on('ui.open', ($, e) => {
+      opened.push(e.id)
+      return { value: { isPlaced: true } } as never
+    })
+    await $.session.measure({
+      context: { window: 200000 } as never,
+      rateLimits: [{ kind: 'five_hour', percentUsed: 40 }],
+      changed: ['rateLimits'],
+    })
+    const ui = await $.ui.mount({ plugin: 'burnbar', surface, component: 'AbovePrompt', props: { hasSurvey: false } as never } as never)
+    expect(await ui.find({ key: 'details' })).toBeTruthy()
+    await ui.press({ key: 'details' })
+    expect(opened).toEqual(['burnbar'])
+  })
+}

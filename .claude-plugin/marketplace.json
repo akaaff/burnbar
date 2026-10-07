@@ -5,14 +5,14 @@
   },
   "metadata": {
     "description": "Claude Code plugin showing how much of your 5-hour and weekly usage limits you've used",
-    "version": "0.4.7"
+    "version": "0.4.8"
   },
   "plugins": [
     {
       "name": "burnbar",
       "source": "./",
       "description": "Bars above the prompt showing percent used of your 5-hour and weekly Claude usage limits, with reset countdowns",
-      "version": "0.4.7",
+      "version": "0.4.8",
       "author": {
         "name": "akaaff"
       },

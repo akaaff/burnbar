@@ -10,7 +10,7 @@ And in the Claude desktop app's Code tab:
 
 - One bar per limit window (5-hour and weekly) that fills as you use it, segments fading green → red
 - Percentage used, coloured green → red as it climbs; dimmed countdown to each reset
-- `/burnbar` opens a larger side panel with the same bars
+- **details** at the end of the strip, or `/burnbar`, opens a larger side panel with the same bars
 - Colours tuned to Claude Code's `theme` setting: brighter for dark themes, darker for light ones, and an in-between palette for `auto`
 
 Readings come from Claude Code itself after each reply, so the strip appears once Claude has answered at least once. Only Pro and Max subscriptions report usage limits; on API billing it stays hidden.
@@ -20,7 +20,7 @@ Readings come from Claude Code itself after each reply, so the strip appears onc
 ## Examples
 
 1. **See your limits as you work.** Send Claude any prompt, for example `Write a haiku about off-by-one errors`. When the reply finishes, the strip appears above the prompt showing the 5-hour and weekly windows, how much of each you've used, and when each resets.
-2. **Open the detailed panel.** Type `/burnbar`. A side panel opens with a larger bar per window, the exact percentage used, and "resets in" times.
+2. **Open the detailed panel.** Click **details** at the end of the strip, or type `/burnbar`. A side panel opens with a larger bar per window, the exact percentage used, and "resets in" times.
 3. **Check it adapts to your theme.** Run `/theme` and pick a light theme: within a minute, or after Claude's next reply, the bars switch to a darker palette, so yellow and green stay readable on a white background. Pick `auto` and they use an in-between palette.
 4. **Watch a window fill up.** During a long session the 5-hour bar grows from green toward red, and its percentage turns red as it nears 100%.
 

@@ -1,5 +1,5 @@
 import { atom, read, update } from 'claude-code'
-import type { Register } from 'claude-code'
+import type { EngineInterface, Register } from 'claude-code'
 
 import type { Limit, Palette } from '../types'
 
@@ -66,11 +66,11 @@ export function shortReset(resetsAt: string | undefined, at: number): string {
   if (!resetsAt) return ''
   const ms = Date.parse(resetsAt) - at
   if (!(ms > 0)) return ''
-  const mins = Math.round(ms / 60000)
-  const d = Math.floor(mins / 1440)
-  const h = Math.floor((mins % 1440) / 60)
-  const m = mins % 60
-  return d > 0 ? `${d}d ${h}h` : h > 0 ? `${h}h ${m}m` : `${m}m`
+  const total = Math.round(ms / 60000)
+  const days = Math.floor(total / 1440)
+  const hours = Math.floor((total % 1440) / 60)
+  const minutes = total % 60
+  return days > 0 ? `${days}d ${hours}h` : hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`
 }
 
 export function untilReset(resetsAt: string | undefined, at: number): string {
@@ -79,6 +79,22 @@ export function untilReset(resetsAt: string | undefined, at: number): string {
 }
 
 const SHORT_LABELS: Record<string, string> = { five_hour: '5h', seven_day: 'Week', spend_limit: 'Spend' }
+
+// re-read the theme rather than hook theme changes: a settings hook could stand in a change's way
+async function refreshPalette($: EngineInterface) {
+  try {
+    const theme = (await $.config.list()).find(row => row.key === 'theme')
+    await update($, palette, () => paletteFor(theme?.value))
+  } catch {
+    // no theme row on this surface; keep the palette it had
+  }
+}
+
+async function tick($: EngineInterface) {
+  const t = await $.clock.now()
+  await update($, now, () => t)
+  await refreshPalette($)
+}
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
@@ -91,14 +107,9 @@ export const register: Register = on => {
     } catch {
       // no reading yet; session.measure fills it after the first response
     }
-    try {
-      const theme = (await $.config.list()).find(row => row.key === 'theme')
-      await update($, palette, () => paletteFor(theme?.value))
-    } catch {
-      // no theme row on this surface; keep the palette it had
-    }
-    // tick once a minute so the reset countdowns stay current
-    $.clock.every(60_000, () => void $.clock.now().then(t => update($, now, () => t)))
+    await refreshPalette($)
+    // tick once a minute so the reset countdowns and the palette stay current
+    $.clock.every(60_000, () => void tick($))
     return next(e)
   })
 
@@ -107,17 +118,11 @@ export const register: Register = on => {
     return { text: 'Usage panel opened.' }
   })
 
-  on('config.set', { key: 'theme' }, async ($, e, next) => {
-    const result = await next(e)
-    // follow what was written: a refused change keeps the old theme, a clamped one the clamped value
-    if (result.deny === undefined) await update($, palette, () => paletteFor(result.value))
-    return result
-  }).catch(($, e, next) => next(e)) // never stand in the way of a theme change
-
   on('session.measure', async ($, e, next) => {
     await update($, limits, () => e.rateLimits.map(l => ({ ...l })))
     const t = await $.clock.now()
     await update($, now, () => t)
+    await refreshPalette($)
     return next(e)
   })
 

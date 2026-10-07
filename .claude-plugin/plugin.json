@@ -1,6 +1,6 @@
 {
   "name": "burnbar",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "Bars above the prompt showing how much of your 5-hour and weekly Claude usage limits you've used, with reset countdowns",
   "types": "./types/index.d.ts",
   "author": {

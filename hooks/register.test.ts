@@ -108,7 +108,7 @@ test('palettes darken from dark to auto to light', () => {
 
 // what the engine answers beneath the plugin when a session starts, with the given theme
 function startWorld(on: On, theme: string) {
-  mock.clock(on, { now: NOW })
+  const clock = mock.clock(on, { now: NOW })
   on('command.register', ($, e) => ({ value: { command: e.name } }) as never)
   on('session.usage', () => ({
     value: { startedAt: NOW, context: { window: 200000 }, rateLimits: [{ kind: 'five_hour', percentUsed: 100 }] },
@@ -117,6 +117,7 @@ function startWorld(on: On, theme: string) {
     value: [{ key: 'theme', label: 'Theme', kind: 'choice', value: theme, provider: { plugin: 'engine', tier: 'core' }, isLocked: false }],
   }) as never)
   on('session.start', ($, e) => ({ cwd: e.cwd }))
+  return { clock, setTheme: (next: string) => { theme = next } }
 }
 
 // the colour of the first (leftmost) filled segment in the strip
@@ -133,18 +134,20 @@ for (const [theme, tone] of [['dark', 'dark'], ['light', 'light'], ['auto', 'aut
   })
 }
 
-test('switching the theme mid-session switches the palette', async ($, on) => {
-  startWorld(on, 'dark')
-  on('config.set', ($, e) => ({ value: e.value }))
+test('a theme change mid-session shows within a minute', async ($, on) => {
+  const world = startWorld(on, 'dark')
   await $.session.start({ cwd: '.', surface: 'terminal', isInteractive: true })
-  await $.config.set({ key: 'theme', value: 'light', previous: 'dark', provider: { plugin: 'engine', tier: 'core' }, origin: { kind: 'composer' } } as never)
+  expect(await firstSegmentColor($ as never)).toBe(gradient(0.95, 'dark'))
+  world.setTheme('light')
+  await world.clock.advance(60_000)
   expect(await firstSegmentColor($ as never)).toBe(gradient(0.95, 'light'))
 })
 
-test('a refused theme change keeps the palette', async ($, on) => {
-  startWorld(on, 'dark')
-  on('config.set', () => ({ deny: 'locked by policy' }))
+test('a theme change shows after the next reply', async ($, on) => {
+  const world = startWorld(on, 'dark')
+  on('session.measure', ($, e) => ({ changed: e.changed }))
   await $.session.start({ cwd: '.', surface: 'terminal', isInteractive: true })
-  await $.config.set({ key: 'theme', value: 'light', previous: 'dark', provider: { plugin: 'engine', tier: 'core' }, origin: { kind: 'composer' } } as never)
-  expect(await firstSegmentColor($ as never)).toBe(gradient(0.95, 'dark'))
+  world.setTheme('light')
+  await $.session.measure({ context: { window: 200000 } as never, rateLimits: [{ kind: 'five_hour', percentUsed: 100 }], changed: ['rateLimits'] })
+  expect(await firstSegmentColor($ as never)).toBe(gradient(0.95, 'light'))
 })

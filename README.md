@@ -21,7 +21,7 @@ Readings come from Claude Code itself after each reply, so the strip appears onc
 
 1. **See your limits as you work.** Send Claude any prompt, for example `Write a haiku about off-by-one errors`. When the reply finishes, the strip appears above the prompt showing the 5-hour and weekly windows, how much of each you've used, and when each resets.
 2. **Open the detailed panel.** Type `/burnbar`. A side panel opens with a larger bar per window, the exact percentage used, and "resets in" times.
-3. **Check it adapts to your theme.** Run `/theme` and pick a light theme: the bars switch to a darker palette at once, so yellow and green stay readable on a white background. Pick `auto` and they use an in-between palette.
+3. **Check it adapts to your theme.** Run `/theme` and pick a light theme: within a minute, or after Claude's next reply, the bars switch to a darker palette, so yellow and green stay readable on a white background. Pick `auto` and they use an in-between palette.
 4. **Watch a window fill up.** During a long session the 5-hour bar grows from green toward red, and its percentage turns red as it nears 100%.
 
 ## Install

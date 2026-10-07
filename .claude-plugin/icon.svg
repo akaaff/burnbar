@@ -1,15 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
   <title>burnbar</title>
+  <defs>
+    <clipPath id="flame">
+      <path d="M262 62C300 120 392 196 392 300c0 78-60 136-136 136S120 378 120 300c0-56 30-100 66-130-2 40 14 70 40 84C222 172 236 110 262 62z"/>
+    </clipPath>
+  </defs>
   <rect width="512" height="512" rx="112" fill="#1b1d22"/>
-  <g transform="translate(0 -28)">
-  <!-- the flame burning off the end of the bar -->
-  <path d="M398 150c26 30 44 56 44 86 0 34-26 58-58 58s-58-24-58-58c0-20 9-36 22-50 2 16 10 26 22 30-4-26 6-48 28-66z" fill="#f2552c"/>
-  <path d="M386 214c13 14 20 26 20 38 0 15-11 26-24 26s-24-11-24-26c0-10 5-19 12-26 1 8 5 13 11 15-2-11 0-20 5-27z" fill="#ffc23d"/>
-  <!-- five segments filling green to red, the way the strip does -->
-  <rect x="62"  y="306" width="62" height="110" rx="14" fill="#2fbf4a"/>
-  <rect x="136" y="306" width="62" height="110" rx="14" fill="#8ccc2a"/>
-  <rect x="210" y="306" width="62" height="110" rx="14" fill="#e6c21e"/>
-  <rect x="284" y="306" width="62" height="110" rx="14" fill="#f08a1c"/>
-  <rect x="358" y="306" width="62" height="110" rx="14" fill="#e8402a"/>
+  <!-- a flame cut into the strip's bands: green at the base, burning red at the tip -->
+  <g clip-path="url(#flame)">
+    <rect x="100" y="372" width="312" height="70" fill="#2fbf4a"/>
+    <rect x="100" y="296" width="312" height="66" fill="#9acb25"/>
+    <rect x="100" y="220" width="312" height="66" fill="#e6c21e"/>
+    <rect x="100" y="144" width="312" height="66" fill="#f08a1c"/>
+    <rect x="100" y="60"  width="312" height="74" fill="#e8402a"/>
   </g>
 </svg>

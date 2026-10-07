@@ -1,0 +1,10 @@
+{
+  "name": "usage-meter",
+  "version": "0.2.0",
+  "description": "Side panel with progress bars for your remaining 5-hour and weekly Claude usage limits",
+  "types": "./types/index.d.ts",
+  "author": {
+    "name": "akaaff"
+  },
+  "repository": "https://github.com/akaaff/claude-usage-meter"
+}

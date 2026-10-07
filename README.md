@@ -84,7 +84,7 @@ Everything is in [`hooks/register.tsx`](hooks/register.tsx):
 | What | Where |
 | --- | --- |
 | Segment characters | `segments()` (`▰` / `▱`) |
-| Colours and light-theme palette | `gradient()` |
+| Colours, and the dark / light / auto palettes | `TONES` and `gradient()` |
 | Strip layout and spacing | the `AbovePrompt` render hook |
 | Side panel | the `Pane` render hook |
 

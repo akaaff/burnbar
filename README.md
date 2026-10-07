@@ -2,9 +2,7 @@
 
 A Claude Code plugin that shows how much of your Claude usage limits you've used, right above the prompt:
 
-```
-5h ▰▰▱▱▱▱▱▱▱▱ 23%  ↻ 2h 14m  ·  Week ▰▱▱▱▱▱▱▱▱▱ 8%  ↻ 3d 4h
-```
+![burnbar in a terminal: the 5-hour window at 91% used, its bar running green to red, and the weekly window at 44%, each with a reset countdown](docs/terminal.png)
 
 - One bar per limit window (5-hour and weekly) that fills as you use it, segments fading green → red
 - Percentage used, coloured green → red as it climbs; dimmed countdown to each reset

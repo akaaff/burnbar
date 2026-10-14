@@ -34,6 +34,19 @@ test('segments run green to red by position, filled and empty alike', () => {
   // an empty outline takes its position's colour too, ending in red
   expect(segs[3].color).toBe(gradient(0.65))
   expect(segs[9].color).toBe(gradient(0.05))
+  expect(segs.map(s => s.isFilled)).toEqual([true, true, true, false, false, false, false, false, false, false])
+})
+
+test('the strip draws empty outlines in their colour, dimmed', async ($, on) => {
+  mock.clock(on, { now: NOW })
+  on('session.measure', ($, e) => ({ changed: e.changed }))
+  await $.session.measure({ context: { window: 200000 } as never, rateLimits: [{ kind: 'five_hour', percentUsed: 30 }], changed: ['rateLimits'] })
+  const ui = await $.ui.mount({ plugin: 'burnbar', surface: 'terminal', component: 'AbovePrompt', props: { hasSurvey: false } as never } as never)
+  const outline = await ui.find({ type: 'Text', text: /^▱$/ })
+  const solid = await ui.find({ type: 'Text', text: /^▰$/ })
+  expect(outline?.props.color).toBe(gradient(0.65))
+  expect(outline?.props.dimColor).toBe(true)
+  expect(solid?.props.dimColor).toBe(false)
 })
 
 test('reset countdown', () => {

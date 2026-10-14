@@ -54,12 +54,14 @@ export function paletteFor(theme: unknown): Palette {
   return typeof theme === 'string' && theme.startsWith('light') ? 'light' : 'dark'
 }
 
-// one entry per segment, coloured by position green (left) to red (right): filled ones solid, empty ones outlined
-export function segments(used: number, width: number, tone: Palette = 'dark'): { char: string; color: string }[] {
+// one entry per segment, coloured by position green (left) to red (right): filled ones solid,
+// empty ones outlined and drawn dim so the filled part still reads at a glance
+export function segments(used: number, width: number, tone: Palette = 'dark'): { char: string; color: string; isFilled: boolean }[] {
   const filled = Math.round((Math.min(100, used) / 100) * width)
   return Array.from({ length: width }, (_, i) => ({
     char: i < filled ? '▰' : '▱',
     color: gradient(1 - (i + 0.5) / width, tone),
+    isFilled: i < filled,
   }))
 }
 
@@ -154,7 +156,7 @@ export const register: Register = on => {
               </Text>
               <Text>
                 {segments(used, width, tone).map((seg, i) => (
-                  <Text key={`s${i}`} color={seg.color}>{seg.char}</Text>
+                  <Text key={`s${i}`} color={seg.color} dimColor={!seg.isFilled}>{seg.char}</Text>
                 ))}
               </Text>
               <Text dimColor>{untilReset(limit.resetsAt, at)}</Text>
@@ -183,7 +185,7 @@ export const register: Register = on => {
               {i > 0 && <Text dimColor>  ·  </Text>}
               <Text dimColor>{SHORT_LABELS[limit.kind] ?? limit.kind} </Text>
               {segments(used, 10, tone).map((seg, s) => (
-                <Text key={`s${s}`} color={seg.color}>{seg.char}</Text>
+                <Text key={`s${s}`} color={seg.color} dimColor={!seg.isFilled}>{seg.char}</Text>
               ))}
               <Text color={barColor(used, tone)}> {used}%</Text>
               {reset && <Text dimColor>  ↻ {reset}</Text>}

@@ -54,12 +54,13 @@ export function paletteFor(theme: unknown): Palette {
   return typeof theme === 'string' && theme.startsWith('light') ? 'light' : 'dark'
 }
 
-// one entry per segment, filling with usage: green (left) to red (right), empty ones uncoloured
-export function segments(used: number, width: number, tone: Palette = 'dark'): { char: string; color?: string }[] {
+// one entry per segment, coloured by position green (left) to red (right): filled ones solid, empty ones outlined
+export function segments(used: number, width: number, tone: Palette = 'dark'): { char: string; color: string }[] {
   const filled = Math.round((Math.min(100, used) / 100) * width)
-  return Array.from({ length: width }, (_, i) =>
-    i < filled ? { char: '▰', color: gradient(1 - (i + 0.5) / width, tone) } : { char: '▱' },
-  )
+  return Array.from({ length: width }, (_, i) => ({
+    char: i < filled ? '▰' : '▱',
+    color: gradient(1 - (i + 0.5) / width, tone),
+  }))
 }
 
 export function shortReset(resetsAt: string | undefined, at: number): string {
@@ -152,9 +153,9 @@ export const register: Register = on => {
                 {label(limit.kind)} <Text color={barColor(used, tone)}>{used}% used</Text>
               </Text>
               <Text>
-                {segments(used, width, tone).map((seg, i) =>
-                  seg.color ? <Text key={`s${i}`} color={seg.color}>{seg.char}</Text> : <Text key={`s${i}`} dimColor>{seg.char}</Text>,
-                )}
+                {segments(used, width, tone).map((seg, i) => (
+                  <Text key={`s${i}`} color={seg.color}>{seg.char}</Text>
+                ))}
               </Text>
               <Text dimColor>{untilReset(limit.resetsAt, at)}</Text>
             </Box>
@@ -181,9 +182,9 @@ export const register: Register = on => {
             <Text key={limit.kind}>
               {i > 0 && <Text dimColor>  ·  </Text>}
               <Text dimColor>{SHORT_LABELS[limit.kind] ?? limit.kind} </Text>
-              {segments(used, 10, tone).map((seg, s) =>
-                seg.color ? <Text key={`s${s}`} color={seg.color}>{seg.char}</Text> : <Text key={`s${s}`} dimColor>{seg.char}</Text>,
-              )}
+              {segments(used, 10, tone).map((seg, s) => (
+                <Text key={`s${s}`} color={seg.color}>{seg.char}</Text>
+              ))}
               <Text color={barColor(used, tone)}> {used}%</Text>
               {reset && <Text dimColor>  ↻ {reset}</Text>}
             </Text>

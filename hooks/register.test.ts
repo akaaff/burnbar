@@ -27,11 +27,13 @@ test('gradient runs red to yellow to green', () => {
   expect(barColor(150)).toBe(gradient(0))
 })
 
-test('segments colour filled ones green to red, leave empty ones plain', () => {
+test('segments run green to red by position, filled and empty alike', () => {
   const segs = segments(30, 10)
   expect(segs.map(s => s.char).join('')).toBe('▰▰▰▱▱▱▱▱▱▱')
   expect(segs[0].color).toBe(gradient(0.95))
-  expect(segs[3].color).toBe(undefined)
+  // an empty outline takes its position's colour too, ending in red
+  expect(segs[3].color).toBe(gradient(0.65))
+  expect(segs[9].color).toBe(gradient(0.05))
 })
 
 test('reset countdown', () => {
